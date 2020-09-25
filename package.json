@@ -1,0 +1,22 @@
+{
+  "name": "bolt-meme-generator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/app.js",
+  "dependencies": {
+    "@slack/bolt": "^2.3.0",
+    "axios": "^0.20.0",
+    "dotenv": "^8.2.0",
+    "jssoup": "0.0.12",
+    "node-cache": "^5.1.2",
+    "nodemon": "^2.0.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/app.js",
+    "nodemon": "nodemon src/app.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
