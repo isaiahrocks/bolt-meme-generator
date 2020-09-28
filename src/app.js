@@ -3,12 +3,14 @@ const { getMemes } = require('./common-functions/get-memes-templates');
 const { getCaptionedMemeUrl } = require('./common-functions/create-meme');
 require("dotenv").config()
 
+const COMMAND = process.env.COMMAND_NAME || 'memer'
+
 // Initializes your app with your bot token and signing secret
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
   signingSecret: process.env.SLACK_SIGNING_SECRET
 });
-app.command('/memer', async ({ command, ack, say, context }) => {
+app.command(`/${COMMAND}`, async ({ command, ack, say, context }) => {
   // Acknowledge command request
   await ack();
   console.log(command);
