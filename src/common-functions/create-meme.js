@@ -11,7 +11,7 @@ async function getCaptionedMemeUrl(templateId, text0, text1) {
     return cachedValue;
   }
   const captionResponse = await getCaptionedImage(templateId, text0, text1);
-  if(captionResponse) {
+  if(captionResponse && captionResponse.data.data !== undefined) {
     const memeUrl = captionResponse.data.data.url;
     resultCache.set(cacheKey, memeUrl);
     return memeUrl;
