@@ -110,7 +110,7 @@ app.action('delete_message', async ({ ack, body }) => {
 
 function getUIBlocks(name, url, thisIndex, totalMemes, context) {
   let nextMemeIndex = thisIndex + 1;
-  if(thisIndex >= totalMemes) {
+  if(nextMemeIndex >= totalMemes) {
     nextMemeIndex = 0;
   }
 
