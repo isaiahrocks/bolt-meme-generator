@@ -17,14 +17,17 @@ app.command(`/${COMMAND}`, async ({ command, ack, say, context }) => {
   console.log(command);
   const commandParts = command.text.split(';');
   const searchParams = commandParts[0].trim();
-  const caption1 = commandParts[1].trim();
-  const caption2 = commandParts[2].trim();
-
-  if(commandParts.length != 3) {
+  var caption1 = ' ';
+  var caption2 = ' ';
+  if(commandParts.length != 3 && commandParts.length != 1) {
     await say('Must provide string in format: /command searchParams; caption; caption');
     return;
   }
   else {
+    if(commandParts.length != 1){
+      caption1 = commandParts[1].trim();
+      caption2 = commandParts[2].trim();
+    }
     const memes = await getMemes(searchParams, false);
     if(memes.count > 0) {
       const firstMemeTemplate = memes.images[0];
