@@ -5,11 +5,9 @@ const NodeCache = require('node-cache');
 const resultCache = new NodeCache({ stdTTL: 3600, checkperiod: 120 });
 
 async function getCaptionedMemeUrl(templateId, text0, text1) {
-  if(text0 == undefined){
-    text0 = "";
-  }
-  if(text1 == undefined){
-    text1 = "";
+  if(text0.length == 0 && text1.length == 0){
+    text0 = ' ';
+    text1 = ' ';
   }
   const cacheKey = `${templateId}_${text0}_${text1}`;
   var cachedValue = resultCache.get(cacheKey);
