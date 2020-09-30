@@ -36,7 +36,7 @@ app.command(`/${COMMAND}`, async ({ command, ack, say, context }) => {
       
       if(captionedMemeUrl) {
         await app.client.chat.postEphemeral({
-          token: context.botToken,
+          token: process.env.SLACK_OAUTH_TOKEN,
           channel: command.channel_id,
           user: command.user_id,
           attachments: getUIBlocks(firstMemeTemplate.name, captionedMemeUrl, 0, memes.count, {
@@ -48,7 +48,7 @@ app.command(`/${COMMAND}`, async ({ command, ack, say, context }) => {
       }
       else {
         await app.client.chat.postEphemeral({
-          token: context.botToken,
+          token: process.env.SLACK_OAUTH_TOKEN,
           channel: command.channel_id,
           user: command.user_id,
           text: 'Unable to generate meme from template..'
@@ -57,7 +57,7 @@ app.command(`/${COMMAND}`, async ({ command, ack, say, context }) => {
     }
     else {
       await app.client.chat.postEphemeral({
-        token: context.botToken,
+        token: process.env.SLACK_OAUTH_TOKEN,
         channel: command.channel_id,
         user: command.user_id,
         text: 'No meme templates found ..'
@@ -66,20 +66,24 @@ app.command(`/${COMMAND}`, async ({ command, ack, say, context }) => {
   }
 });
 
-app.action('post_meme', async ({ ack, say, payload, body }) => {
+app.action('post_meme', async ({ ack, say, payload, body, context }) => {
   await ack();
   // Update the message to reflect the action
 
   // delete ephemeral message
   await axios.post(body.response_url, {
-    "response_type": "ephemeral",
     "delete_original": "true"
   }).then(async () => {
 
     // say the url (stored in value)
     // this will post a link to the image in 
     // the channel
-    await say (payload.value);
+    await app.client.chat.postMessage({
+      token: process.env.SLACK_OAUTH_TOKEN,
+      channel: body.channel.id,
+      text: payload.value,
+      unfurl_links: true,
+    });
   });
 });
 
