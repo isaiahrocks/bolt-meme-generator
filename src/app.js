@@ -196,7 +196,9 @@ const index = Number(index_searchKey[0] || 0);
 const stringifiedContext = index_searchKey[1] || '{}';
 const storedContext = JSON.parse(stringifiedContext);
 
-if(storedContext.searchKey  != undefined) {
+if(storedContext.searchKey  != undefined &&
+  storedContext.caption1 != undefined && 
+  storedContext.caption2 != undefined) {
 
     // get the memes (most likely returned from cache)
     const memes = await getMemes(storedContext.searchKey, false);
