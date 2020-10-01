@@ -12,10 +12,13 @@ async function getCaptionedMemeUrl(templateId, text0, text1) {
   const cacheKey = `${templateId}_${text0}_${text1}`;
   var cachedValue = resultCache.get(cacheKey);
   if(cachedValue !== undefined) {
+    console.log(`Returning cached value for key: ${cacheKey}`);
     return cachedValue;
   }
   const captionResponse = await getCaptionedImage(templateId, text0, text1);
   if(captionResponse && captionResponse.data.data !== undefined) {
+    console.log(`Image response recieved from captioning api for value: ${cacheKey}`);
+
     const memeUrl = captionResponse.data.data.url;
     resultCache.set(cacheKey, memeUrl);
     return memeUrl;

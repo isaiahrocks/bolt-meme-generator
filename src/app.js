@@ -14,7 +14,7 @@ const app = new App({
 app.command(`/${COMMAND}`, async ({ command, ack, say, context }) => {
   // Acknowledge command request
   await ack();
-  console.log(command);
+  console.log('command initiated!');
   const commandParts = command.text.split(';');
   const searchParams = commandParts[0].trim();
   var caption1 = ' ';
@@ -32,7 +32,6 @@ app.command(`/${COMMAND}`, async ({ command, ack, say, context }) => {
     if(memes.count > 0) {
       const firstMemeTemplate = memes.images[0];
       const captionedMemeUrl = await getCaptionedMemeUrl(firstMemeTemplate.templateId, caption1, caption2);
-      console.log(memes.count);
       
       if(captionedMemeUrl) {
         await app.client.chat.postEphemeral({
@@ -47,6 +46,7 @@ app.command(`/${COMMAND}`, async ({ command, ack, say, context }) => {
         });
       }
       else {
+        console.error('Caption request failed.. no image returned');
         await app.client.chat.postEphemeral({
           token: process.env.SLACK_OAUTH_TOKEN,
           channel: command.channel_id,
@@ -56,6 +56,7 @@ app.command(`/${COMMAND}`, async ({ command, ack, say, context }) => {
       }
     }
     else {
+      console.error('No templates found for the search term');
       await app.client.chat.postEphemeral({
         token: process.env.SLACK_OAUTH_TOKEN,
         channel: command.channel_id,
@@ -68,8 +69,7 @@ app.command(`/${COMMAND}`, async ({ command, ack, say, context }) => {
 
 app.action('post_meme', async ({ ack, say, payload, body, context }) => {
   await ack();
-  // Update the message to reflect the action
-
+  console.log(`Posting current meme: ${payload.value}`);
   // delete ephemeral message
   await axios.post(body.response_url, {
     "delete_original": "true"
@@ -89,15 +89,18 @@ app.action('post_meme', async ({ ack, say, payload, body, context }) => {
 
 app.action('get_next_meme', async ({ ack, body, payload }) => {
   await ack();
+  console.log('Going to next meme');
   await goToSpecifiedIndex(payload.value, body.response_url);
 });
 app.action('get_previous_meme', async ({ ack, body, payload }) => {
   await ack();
+  console.log('Going to previous meme');
   await goToSpecifiedIndex(payload.value, body.response_url);
 });
 
 app.action('delete_message', async ({ ack, body }) => {
   await ack();
+  console.log('Cancelling current action');
   // Update the message to reflect the action
   await axios.post(body.response_url, {
     "delete_original": "true"
@@ -125,7 +128,7 @@ function getUIBlocks(name, url, thisIndex, totalMemes, context) {
   if(previousMemeIndex < 0) {
     previousMemeIndex = totalMemes - 1;
   }
-  console.log(`current: ${thisIndex}; next: ${nextMemeIndex}; prev: ${previousMemeIndex}`);
+
   const stringifiedContext = JSON.stringify(context);
   return [{
         "blocks": [
@@ -213,17 +216,21 @@ if(storedContext.searchKey  != undefined &&
     if(memes && memes.count > 0) {
       // we got some memes back
       const anotherImage = memes.images[index];
+      console.log(`Returning captioned image: ${anotherImage.src}`)
       await getCaptionedUrlAndUpdateMessage(responseUrl, anotherImage, index, memes.count, storedContext);
     }
     else {
+      console.log('Forcing cache refresh.. Cache hit failed');
       // force a cache request... maybe the user let the cache expire?
       const memes = await getMemes(storedContext.searchKey, true);
       if(memes && memes.count > 0) {
         // we got some memes back
         const anotherImage = memes.images[index];
+        console.log(`Returning captioned image: ${anotherImage.src}`)
         await getCaptionedUrlAndUpdateMessage(responseUrl, anotherImage, index, memes.count, storedContext);
       }
       else {
+        console.warn("No memes found");
         await notifyUserOfError(responseUrl, "No memes found!");
       }
     }

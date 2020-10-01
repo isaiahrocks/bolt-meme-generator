@@ -23,6 +23,7 @@ async function getMemes(searchParams, forceRefreshCache) {
   const cachedResponse = resultCache.get(searchParams);
   if(cachedResponse !== undefined) {
     cachedResponse.returnDate = new Date().toISOString();
+    console.log(`Returning cached search results for search string: ${cachedResponse}`);
     return cachedResponse;
   }
 
@@ -63,6 +64,7 @@ async function getMemes(searchParams, forceRefreshCache) {
   };
   // console.log(result);
   resultCache.set(searchParams, result);
+  console.log(`Result set contains ${result.count} for search term ${searchParams}. Caching result..`);
 
   return result;
 }
