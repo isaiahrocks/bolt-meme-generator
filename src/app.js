@@ -20,7 +20,12 @@ app.command(`/${COMMAND}`, async ({ command, ack, say, context }) => {
   var caption1 = ' ';
   var caption2 = ' ';
   if(commandParts.length != 3 && commandParts.length != 1) {
-    await say('Must provide string in format: /command searchParams; caption; caption');
+    await await app.client.chat.postEphemeral({
+                  token: process.env.SLACK_OAUTH_TOKEN,
+                  channel: command.channel_id,
+                  user: command.user_id,
+                  text: 'Must provide string in format: /command searchParams; caption; caption',
+                });
     return;
   }
   else {
