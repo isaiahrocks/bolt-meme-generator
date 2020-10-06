@@ -11,7 +11,7 @@ const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
   signingSecret: process.env.SLACK_SIGNING_SECRET
 });
-app.command(`/${COMMAND}`, async ({ command, ack, say, context }) => {
+app.command(`/${COMMAND}`, async ({ command, ack, body }) => {
   // Acknowledge command request
   await ack();
   console.log('command initiated!');
@@ -20,12 +20,7 @@ app.command(`/${COMMAND}`, async ({ command, ack, say, context }) => {
   var caption1 = ' ';
   var caption2 = ' ';
   if(commandParts.length != 3 && commandParts.length != 1) {
-    await await app.client.chat.postEphemeral({
-                  token: process.env.SLACK_OAUTH_TOKEN,
-                  channel: command.channel_id,
-                  user: command.user_id,
-                  text: 'Must provide string in format: /command searchParams; caption; caption',
-                });
+    await notifyUserOfError(body.response_url, 'Must provide string in format: /command searchParams; caption; caption');
     return;
   }
   else {
@@ -39,56 +34,34 @@ app.command(`/${COMMAND}`, async ({ command, ack, say, context }) => {
       const captionedMemeUrl = await getCaptionedMemeUrl(firstMemeTemplate.templateId, caption1, caption2);
       
       if(captionedMemeUrl) {
-        await app.client.chat.postEphemeral({
-          token: process.env.SLACK_OAUTH_TOKEN,
-          channel: command.channel_id,
-          user: command.user_id,
-          attachments: getUIBlocks(firstMemeTemplate.name, captionedMemeUrl, 0, memes.count, {
-            searchKey: searchParams,
-            caption1: caption1,
-            caption2: caption2
-          })
+        await getCaptionedUrlAndUpdateMessage(body.response_url, firstMemeTemplate, 0, memes.count, {
+          searchKey: searchParams,
+          caption1: caption1,
+          caption2: caption2
         });
       }
       else {
         console.error('Caption request failed.. no image returned');
-        await app.client.chat.postEphemeral({
-          token: process.env.SLACK_OAUTH_TOKEN,
-          channel: command.channel_id,
-          user: command.user_id,
-          text: 'Unable to generate meme from template..'
-        });
+        await notifyUserOfError(body.response_url, 'Unable to generate meme from template..');
       }
     }
     else {
       console.error('No templates found for the search term');
-      await app.client.chat.postEphemeral({
-        token: process.env.SLACK_OAUTH_TOKEN,
-        channel: command.channel_id,
-        user: command.user_id,
-        text: 'No meme templates found ..'
-      });
+      await notifyUserOfError(body.response_url, 'No meme templates found ..');
     }
   }
 });
 
-app.action('post_meme', async ({ ack, say, payload, body, context }) => {
+app.action('post_meme', async ({ ack, payload, body }) => {
   await ack();
   console.log(`Posting current meme: ${payload.value}`);
   // delete ephemeral message
   await axios.post(body.response_url, {
-    "delete_original": "true"
+    "delete_original": "true",
+    "response_type": "in_channel",
+    "text": payload.value
   }).then(async () => {
-
-    // say the url (stored in value)
-    // this will post a link to the image in 
-    // the channel
-    await app.client.chat.postMessage({
-      token: process.env.SLACK_OAUTH_TOKEN,
-      channel: body.channel.id,
-      text: payload.value,
-      unfurl_links: true,
-    });
+    console.log('Posted meme!');
   });
 });
 
