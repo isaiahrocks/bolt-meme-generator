@@ -54,12 +54,27 @@ app.command(`/${COMMAND}`, async ({ command, ack, body }) => {
 
 app.action('post_meme', async ({ ack, payload, body }) => {
   await ack();
-  console.log(`Posting current meme: ${payload.value}`);
+  const payloadParts = payload.value.split('._.');
+  const url = payloadParts[0];
+  const templateNamae = payloadParts[1];
+  console.log(`Posting current meme: ${url}; name: ${templateNamae}`);
   // delete ephemeral message
   await axios.post(body.response_url, {
     "delete_original": "true",
     "response_type": "in_channel",
-    "text": payload.value
+    "text": `<@${body.user.username}> posted a meme:`,
+    "attachments": [{
+      "blocks": [
+        {
+          "type": "image",
+          "title": {
+            "type": "plain_text",
+            "text": templateNamae
+          },
+          "image_url": url,
+          "alt_text": templateNamae
+        }]
+      }]
   }).then(async () => {
     console.log('Posted meme!');
   });
@@ -131,7 +146,7 @@ function getUIBlocks(name, url, thisIndex, totalMemes, context) {
                 },
                 "style": "primary",
                 "action_id": "post_meme",
-                "value": url,
+                "value": `${url}._.${name}`,
               },
               {
                 "type": "button",
