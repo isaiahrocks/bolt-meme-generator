@@ -56,8 +56,8 @@ app.action('post_meme', async ({ ack, payload, body }) => {
   await ack();
   const payloadParts = payload.value.split('._.');
   const url = payloadParts[0];
-  const templateNamae = payloadParts[1];
-  console.log(`Posting current meme: ${url}; name: ${templateNamae}`);
+  const templateName = payloadParts[1];
+  console.log(`Posting current meme: ${url}; name: ${templateName}`);
   // delete ephemeral message
   await axios.post(body.response_url, {
     "delete_original": "true",
@@ -69,10 +69,10 @@ app.action('post_meme', async ({ ack, payload, body }) => {
           "type": "image",
           "title": {
             "type": "plain_text",
-            "text": templateNamae
+            "text": templateName
           },
           "image_url": url,
-          "alt_text": templateNamae
+          "alt_text": templateName
         }]
       }]
   }).then(async () => {
